@@ -3,4 +3,4 @@
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/410f29ce4e56a73f73ad/maintainability)](https://codeclimate.com/github/PeterGrn05/frontend-project-11/maintainability)
 
-[ссылка на репозиторий демо-версию](frontend-project-11-neon-one.vercel.app)
+[ссылка на репозиторий демо-версию](https://frontend-project-11-petergrn05s-projects.vercel.app)
