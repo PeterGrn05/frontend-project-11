@@ -1,8 +1,10 @@
-import i18next from 'i18next';
 import * as yup from 'yup';
 import onChange from 'on-change';
+import i18next from 'i18next';
+import axios from 'axios';
 import resources from './locales/index.js';
 import view from './viewer.js';
+import parseMechanism from './parse.js';
 
 export default function app() {
   const defaultLanguage = 'ru';
@@ -20,7 +22,6 @@ export default function app() {
   const elem = {
     form: document.querySelector('.rss-form'),
     input: document.querySelector('#url-input'),
-    errorFields: {},
   };
 
   const i18nxt = i18next.createInstance();
@@ -39,8 +40,9 @@ export default function app() {
       url: i18nxt.t('errors.invalidURL'),
     },
   });
+
   const watchState = onChange(state, (path, value) => {
-    view(path, value);
+    view(state, path, value);
   });
 
   const validate = (fields, feeds) => {
@@ -62,15 +64,29 @@ export default function app() {
         watchState.feeds.push(out);
         watchState.form.validUrl = false;
         watchState.form.errors = null;
+        axios.get(`https://allorigins.hexlet.app/get?url=${out}`)
+          .then((response) => {
+            watchState.data.unshift(parseMechanism(response));
+            watchState.form.status = i18nxt.t('errors.addRSS');
+          })
+          .catch((e) => {
+            if (e.isParsingError) {
+              watchState.form.errors = i18nxt.t('errors.invalidRSS');
+            } else if (e.message === 'Network Error') {
+              watchState.form.errors = i18nxt.t('errors.netError');
+            } else {
+              watchState.form.errors = i18nxt.t('errors.unknownError');
+            }
+          });
+
         elem.input.focus();
         elem.form.reset();
       })
-      // eslint-disable-next-line no-shadow
-      .catch((event) => {
+      .catch((error) => {
         console.log('АЙ!!');
         watchState.form.status = null;
         watchState.form.validUrl = true;
-        watchState.form.errors = event.message;
+        watchState.form.errors = error.message;
       });
   });
 }
