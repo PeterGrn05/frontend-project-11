@@ -3,7 +3,7 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 import axios from 'axios';
 import resources from './locales/index.js';
-import view from './viewer.js';
+import { view, newPostRender } from './viewer.js';
 import parseMechanism from './parse.js';
 
 export default function app() {
@@ -17,6 +17,7 @@ export default function app() {
     },
     feeds: [],
     data: [],
+    dataUpdate: [],
   };
 
   const elem = {
@@ -52,6 +53,41 @@ export default function app() {
     return schema.validate(fields);
   };
 
+  const fullUrl = (rssUrl) => {
+    const url = new URL('/get', 'https://allorigins.hexlet.app');
+    const { searchParams } = url;
+    searchParams.set('url', rssUrl);
+    searchParams.set('disableCache', 'true');
+    return url.toString();
+  };
+
+  function dataUpdate() {
+    state.feeds.forEach((feed) => {
+      axios.get(fullUrl(feed))
+        .then((response) => {
+          const newData = parseMechanism(response);
+          const filtData = [[state.dataUpdate.map((item) => item.title)]].flat(Infinity);
+          state.data.forEach((oldItem) => {
+            oldItem.items.forEach((item) => {
+              filtData.push(item.title);
+            });
+          });
+
+          newData.items.forEach((item) => {
+            if (!filtData.includes(item.title)) {
+              state.upData.push(item);
+              newPostRender(item, state);
+            }
+          });
+
+          setTimeout(dataUpdate, 5000, state);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    });
+  }
+
   elem.form.addEventListener('submit', (event) => {
     event.preventDefault();
 
@@ -61,13 +97,15 @@ export default function app() {
     validate({ url: out }, state.feeds)
       .then(() => {
         console.log('Ура!');
-        watchState.feeds.push(out);
-        watchState.form.validUrl = false;
-        watchState.form.errors = null;
-        axios.get(`https://allorigins.hexlet.app/get?url=${out}`)
+        axios.get(fullUrl(out))
           .then((response) => {
+            watchState.feeds.unshift(out);
+            watchState.form.validUrl = false;
+            watchState.form.errors = null;
+            axios.get(`https://allorigins.hexlet.app/get?url=${out}`);
             watchState.data.unshift(parseMechanism(response));
             watchState.form.status = i18nxt.t('errors.addRSS');
+            dataUpdate(state);
           })
           .catch((e) => {
             if (e.isParsingError) {

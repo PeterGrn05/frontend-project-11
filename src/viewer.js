@@ -69,7 +69,18 @@ function postsRender(data) {
   posts.append(div);
 }
 
-export default function view(state, path, value) {
+function newPostRender(item) {
+  const ul = document.createElement('ul');
+  const li = document.createElement('li');
+  li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+  li.innerHTML = `
+      <a href="${item.link}" class="fw-bold" data-id="20" target="_blank" rel="noopener noreferrer">${item.title}</a>
+      <button type="button" class="btn btn-outline-primary btn-sm" data-id="20" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>
+      `;
+  ul.prepend(li);
+}
+
+function view(state, path, value) {
   switch (path) {
     case 'form.validUrl':
       if (value) {
@@ -96,3 +107,5 @@ export default function view(state, path, value) {
     default:
   }
 }
+
+export { view, newPostRender };
