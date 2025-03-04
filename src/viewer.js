@@ -2,6 +2,59 @@ const input = document.querySelector('#url-input');
 const feedback = document.querySelector('.feedback');
 const posts = document.querySelector('.posts');
 const feeds = document.querySelector('.feeds');
+const modalTitle = document.querySelector('.modal-title');
+const modalBody = document.querySelector('.modal-body');
+const btnClose = document.querySelector('.btn-close');
+const btnSecondary = document.querySelector('.btn-secondary');
+const modal = document.querySelector('.modal');
+const body = document.querySelector('body');
+
+function openModal(state) {
+  const title = document.querySelectorAll('.list-group-item');
+  const allPost = [state.upData || [], state.data.map((item) => item.items || [])].flat(Infinity);
+
+  title.forEach((item) => {
+    item.addEventListener('click', (e) => {
+      if (e.target.classList.contains('btn-outline-primary')) {
+        const titleSelect = item.querySelector('a');
+        const titleText = titleSelect.textContent;
+
+        titleSelect.classList.add('fw-normal', 'link-secondary');
+        titleSelect.classList.remove('fw-bold');
+
+        const post = allPost.find((postFind) => postFind && postFind.title === titleText);
+
+        if (post) {
+          modalTitle.textContent = post.title;
+          modalBody.textContent = post.description;
+          titleSelect.href = post.link;
+          modal.classList.add('show');
+          modal.style.cssText = `
+            display: block;
+            background-color: rgba(0,0,0,.5);
+          `;
+
+          body.style.cssText = `
+            overflow: hidden; 
+            padding-right: 17px;
+          `;
+
+          btnClose.addEventListener('click', () => {
+            modal.style.cssText = 'display: none';
+            body.style.cssText = '';
+          });
+
+          btnSecondary.addEventListener('click', () => {
+            modal.style.cssText = 'display: none';
+            body.style.cssText = '';
+          });
+        } else {
+          console.error('Post not found:', titleText);
+        }
+      }
+    });
+  });
+}
 
 function feedsRender(data) {
   feeds.innerHTML = '';
@@ -35,7 +88,7 @@ function feedsRender(data) {
   feeds.append(div);
 }
 
-function postsRender(data) {
+function postsRender(data, state) {
   posts.innerHTML = '';
 
   const div = document.createElement('div');
@@ -67,9 +120,10 @@ function postsRender(data) {
   });
   div.append(ul);
   posts.append(div);
+  openModal(state);
 }
 
-function newPostRender(item) {
+function newPostRender(item, state) {
   const ul = document.createElement('ul');
   const li = document.createElement('li');
   li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
@@ -78,6 +132,7 @@ function newPostRender(item) {
       <button type="button" class="btn btn-outline-primary btn-sm" data-id="20" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>
       `;
   ul.prepend(li);
+  openModal(state);
 }
 
 function view(state, path, value) {
@@ -100,9 +155,8 @@ function view(state, path, value) {
       feedback.classList.add('text-success');
       break;
     case 'data':
-      console.log(state.data);
       feedsRender(state.data);
-      postsRender(state.data);
+      postsRender(state.data, state);
       break;
     default:
   }

@@ -61,13 +61,13 @@ export default function app() {
     return url.toString();
   };
 
-  function dataUpdate() {
-    state.feeds.forEach((feed) => {
+  function dataUpdate(stateData) {
+    stateData.feeds.forEach((feed) => {
       axios.get(fullUrl(feed))
         .then((response) => {
           const newData = parseMechanism(response);
-          const filtData = [[state.dataUpdate.map((item) => item.title)]].flat(Infinity);
-          state.data.forEach((oldItem) => {
+          const filtData = [[stateData.dataUpdate.map((item) => item.title)]].flat(Infinity);
+          stateData.data.forEach((oldItem) => {
             oldItem.items.forEach((item) => {
               filtData.push(item.title);
             });
@@ -75,16 +75,14 @@ export default function app() {
 
           newData.items.forEach((item) => {
             if (!filtData.includes(item.title)) {
-              state.upData.push(item);
-              newPostRender(item, state);
+              stateData.upData.push(item);
+              newPostRender(item, stateData);
             }
           });
 
-          setTimeout(dataUpdate, 5000, state);
+          setTimeout(dataUpdate, 5000, stateData);
         })
-        .catch((e) => {
-          console.log(e);
-        });
+        .catch();
     });
   }
 
@@ -96,7 +94,6 @@ export default function app() {
 
     validate({ url: out }, state.feeds)
       .then(() => {
-        console.log('Ура!');
         axios.get(fullUrl(out))
           .then((response) => {
             watchState.feeds.unshift(out);
@@ -120,11 +117,10 @@ export default function app() {
         elem.input.focus();
         elem.form.reset();
       })
-      .catch((error) => {
-        console.log('АЙ!!');
+      .catch((errorResponse) => {
         watchState.form.status = null;
         watchState.form.validUrl = true;
-        watchState.form.errors = error.message;
+        watchState.form.errors = errorResponse.message;
       });
   });
 }
