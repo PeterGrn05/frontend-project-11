@@ -1,6 +1,6 @@
 const parseMechanism = (response) => {
   const parse = new DOMParser();
-  const data = parse.parseFromString(response.data.contents, 'text/xml');
+  const data = parse.parseFromString(response, 'text/xml');
   const errorNode = data.querySelector('parsererror');
 
   if (errorNode) {

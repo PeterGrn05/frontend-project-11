@@ -12,5 +12,10 @@ export default {
       unknownError: 'Неизвестная ошибка',
       addRSS: 'RSS успешно загружен',
     },
+    text: {
+      post: 'Посты',
+      feed: 'Фиды',
+      button: 'Просмотр',
+    },
   },
 };
