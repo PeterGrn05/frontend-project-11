@@ -10,12 +10,14 @@ export default {
       invalidRSS: 'Ресурс не содержит валидный RSS,',
       netError: 'Ошибка сети',
       unknownError: 'Неизвестная ошибка',
-      addRSS: 'RSS успешно загружен',
     },
     text: {
       post: 'Посты',
       feed: 'Фиды',
       button: 'Просмотр',
+    },
+    added: {
+      addRSS: 'RSS успешно загружен',
     },
   },
 };

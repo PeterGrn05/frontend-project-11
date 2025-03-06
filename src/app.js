@@ -108,7 +108,7 @@ export default function app() {
                   description: parseData.description,
                   url: out,
                 });
-                watchedState.form.status = i18nxt.t('errors.addRSS');
+                watchedState.form.status = i18nxt.t('added.addRSS');
               })
               .catch((error) => {
                 if (error.isParsingError) {
